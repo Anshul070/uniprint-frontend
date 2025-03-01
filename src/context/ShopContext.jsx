@@ -44,7 +44,7 @@ function ShopContext(props) {
     };
 
     return (
-        <shopData.Provider value={{ fetchData, handleManualRefetch }}>
+        <shopData.Provider value={{ fetchData, handleManualRefetch, manualRefetch }}>
             {props.children}
         </shopData.Provider>
     );

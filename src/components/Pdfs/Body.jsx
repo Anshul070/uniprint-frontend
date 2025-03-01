@@ -1,9 +1,10 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import { StatpdfCards } from './StatsPdfCards'
 import { shopData } from '../../context/shopContext';
 import { PrintCard} from './PrintCard';
 
 function Body() {
+  const [pagesInMachine, setPagesInMachine] = useState(0);
   const {fetchData, handleManualRefetch } = useContext(shopData);
   const data = fetchData;
   const types = [
@@ -31,10 +32,10 @@ function Body() {
 
   return (
     <div className="px-4 grid gap-3 grid-cols-12">
-        <StatpdfCards data={data} />
+        <StatpdfCards data={data} setPagesInMachine={setPagesInMachine} pagesInMachine={pagesInMachine} />
         {
           types.map((type, index) => (
-            <PrintCard data={data} handleManualRefetch={handleManualRefetch} type={type} key={index} />
+            <PrintCard data={data} handleManualRefetch={handleManualRefetch} type={type} key={index} setPagesInMachine={setPagesInMachine} pagesInMachine={pagesInMachine}/>
           ))
         }
 

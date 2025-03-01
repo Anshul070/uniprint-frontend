@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { MergePDFButton } from "./MergePDFButton";
 
-export const PrintCard = ({ data, type }) => {
+export const PrintCard = ({ data, type, pagesInMachine, setPagesInMachine }) => {
   // State to manage loading and error states
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -81,6 +81,7 @@ export const PrintCard = ({ data, type }) => {
         } p-4 rounded border-[1px] border-stone-300 mb-6 overflow-hidden`}>
         {isFocused ? (
           <Container
+          setPagesInMachine={setPagesInMachine} pagesInMachine={pagesInMachine}
             type={type}
             pdfs={paidPdfs}
             title="Paid PDFs"
@@ -126,6 +127,7 @@ export const PrintCard = ({ data, type }) => {
           </h1>
         ) : (
           <Container
+          setPagesInMachine={setPagesInMachine} pagesInMachine={pagesInMachine}
             data={data}
             pdfs={unpaidPdfs}
             type={type}
@@ -160,12 +162,12 @@ export const PrintCard = ({ data, type }) => {
 };
 
 // Container Component
-const Container = ({ title, children, data, type, pdfs }) => {
+const Container = ({ title, children, data, type, pdfs, pagesInMachine, setPagesInMachine }) => {
   return (
     <>
       <div className="flex mb-4 items-start justify-between">
         <h3 className="text-lg font-medium text-stone-700 flex justify-between w-full">
-          {title} <MergePDFButton  pdfs={pdfs} data={data} type={type} />
+          {title} {pagesInMachine < 20 ? <p className="text-red-600 text-sm">Insert Pages</p> : <MergePDFButton  pdfs={pdfs} data={data} type={type} setPagesInMachine={setPagesInMachine} pagesInMachine={pagesInMachine} />}
         </h3>
       </div>
       <div>{children}</div>

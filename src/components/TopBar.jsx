@@ -2,10 +2,13 @@ import React, { useContext } from "react";
 import { FiCalendar } from "react-icons/fi";
 import { shopData } from "../context/shopContext";
 import { LuRefreshCcw } from "react-icons/lu";
+import { motion } from "framer-motion";
 
 export const TopBar = () => {
-  const { fetchData, handleManualRefetch } = useContext(shopData);
+  const { fetchData, handleManualRefetch, manualRefetch } = useContext(shopData);
   const data = fetchData;
+  console.log(manualRefetch);
+
   const getMonth = (date) => {
     const monthNames = [
       "Jan",
@@ -21,7 +24,7 @@ export const TopBar = () => {
       "Nov",
       "Dec",
     ];
-    return monthNames[date.getMonth() - 1];
+    return monthNames[date.getMonth()];
   };
 
   const getDay = (date) => {
@@ -40,17 +43,18 @@ export const TopBar = () => {
   const getTodayDate = (date) => {
     const todayDate = date.getDate().toString().padStart(2, "0");
     let dateString = "";
-    if (todayDate === 1) {
+    if (todayDate === "01") {
       dateString = "1st";
-    } else if (todayDate === 2) {
+    } else if (todayDate === "02") {
       dateString = "2nd";
-    } else if (todayDate === 3) {
+    } else if (todayDate === "03") {
       dateString = "3rd";
     } else {
       dateString = `${todayDate}th`;
     }
     return dateString;
   };
+
   function getDate() {
     let date = new Date();
     const year = date.getFullYear().toString();
@@ -60,6 +64,14 @@ export const TopBar = () => {
     const dateString = `${day}, ${month} ${todayDate}, ${year}`;
     return dateString;
   }
+
+  // Animation configuration for the refresh icon
+  const spinTransition = {
+    loop: Infinity,
+    ease: "linear",
+    duration: 1,
+  };
+
   return (
     <div className="border-b px-4 mb-4 mt-2 pb-4 border-stone-200">
       <div className="flex items-center justify-between p-0.5">
@@ -70,11 +82,21 @@ export const TopBar = () => {
           <span className="text-xs block text-stone-500">{getDate()}</span>
         </div>
         <div className="flex gap-2">
+          {/* Refresh Button */}
           <button
             onClick={handleManualRefetch}
-            className="px-8 py-2 rounded bg-stone-100 transition-colors hover:bg-violet-100 hover:text-violet-700">
-            <LuRefreshCcw />
+            className="px-8 py-2 rounded bg-stone-100 transition-colors hover:bg-violet-100 hover:text-violet-700"
+          >
+            {/* Animated Refresh Icon */}
+            <motion.div
+              animate={manualRefetch ? { rotate: 1240 } : { rotate: 0 }}
+              transition={spinTransition}
+            >
+              <LuRefreshCcw />
+            </motion.div>
           </button>
+
+          {/* Calendar Button */}
           <button className="flex text-sm items-center gap-2 bg-stone-100 transition-colors hover:bg-violet-100 hover:text-violet-700 px-3 py-1.5 rounded">
             <FiCalendar />
             <span>1 Month</span>

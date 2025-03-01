@@ -1,11 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 
-export const StatpdfCards = ({ data }) => {
+export const StatpdfCards = ({ data, pagesInMachine, setPagesInMachine }) => {
+  // State to track the number of pages in the machine
+
   // Function to calculate total colored files
   function totalColoredFiles() {
     let sum = 0;
     data.pdfs?.forEach((elem) => {
-      if(!elem.isPrinted){
+      if (!elem.isPrinted) {
         sum += elem.pdfDetails.totalFilesColored;
       }
     });
@@ -16,7 +18,7 @@ export const StatpdfCards = ({ data }) => {
   function totalBlackAndWhiteFiles() {
     let sum = 0;
     data.pdfs?.forEach((elem) => {
-      if(!elem.isPrinted){
+      if (!elem.isPrinted) {
         sum += elem.pdfDetails.totalFilesBlackAndWhite;
       }
     });
@@ -27,7 +29,7 @@ export const StatpdfCards = ({ data }) => {
   function totalFiles() {
     let sum = 0;
     data.pdfs?.forEach((elem) => {
-      if(!elem.isPrinted){
+      if (!elem.isPrinted) {
         sum +=
           elem.pdfDetails.totalFilesColored +
           elem.pdfDetails.totalFilesBlackAndWhite;
@@ -67,6 +69,28 @@ export const StatpdfCards = ({ data }) => {
         trendColor="#3357FF" // Bluish color for Total Files
         period={todayDate}
       />
+
+      {/* New Card for Pages in Machine */}
+      <div className="col-span-12 p-4 rounded border border-stone-300">
+        <div className="flex mb-8 items-start justify-between">
+          <div>
+            <h3 className="text-stone-500 mb-2 text-sm">Pages in Machine</h3>
+            <input
+              type="number"
+              placeholder="Enter pages"
+              value={pagesInMachine}
+              onChange={(e) => setPagesInMachine(e.target.value)}
+              className="border border-stone-300 rounded px-2 py-1 w-full text-lg font-semibold outline-none"
+            />
+          </div>
+          {/* Trend Indicator */}
+          <div
+            style={{ backgroundColor: "#FFA500" }} // Orange color for Pages in Machine
+            className="w-4 h-4 rounded-full"
+          ></div>
+        </div>
+        <p className="text-xs text-stone-500">Period: {todayDate}</p>
+      </div>
     </>
   );
 };

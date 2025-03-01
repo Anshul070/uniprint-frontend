@@ -1,14 +1,15 @@
 import React, { useContext, useEffect, useState } from "react";
 import { shopData } from "../../context/shopContext";
 
-export const MergePDFButton = ({ type, pdfs }) => {
-  const {handleManualRefetch } = useContext(shopData);
+export const MergePDFButton = ({ type, pdfs, pagesInMachine, setPagesInMachine }) => {
+  const { handleManualRefetch } = useContext(shopData);
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const [showDialog, setShowDialog] = useState(false);
   const [printingInitiated, setPrintingInitiated] = useState(false);
+  const [printedPages, setPrintedPages] = useState(0);
 
   async function handleConfirmPrinted() {
     try {
@@ -18,13 +19,17 @@ export const MergePDFButton = ({ type, pdfs }) => {
         ids.push(pdf._id);
         if (url) acc.push(url);
         return acc;
-      }, []);// Extract PDF IDs
+      }, []); // Extract PDF IDs
       const response = await fetch(
         "http://localhost:5000/api/printing/delete",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ deleteUrls : awsUrls, type : type.type, ids : ids }),
+          body: JSON.stringify({
+            deleteUrls: awsUrls,
+            type: type.type,
+            ids: ids,
+          }),
         }
       );
 
@@ -33,6 +38,7 @@ export const MergePDFButton = ({ type, pdfs }) => {
       }
 
       setShowDialog(false); // Close the dialog
+      setPagesInMachine(pagesInMachine - printedPages);
       handleManualRefetch();
     } catch (error) {
       console.error("Error confirming printed status:", error);
@@ -57,8 +63,8 @@ export const MergePDFButton = ({ type, pdfs }) => {
         body: JSON.stringify({ blackAndWhiteSingleSided: awsUrls }),
       });
 
-      const nonBlankPageCount = response.headers.get("Page-Count");
-      console.log("Expected non-blank pages:", nonBlankPageCount);
+      const pageCount = response.headers.get("Page-Count");
+      console.log("Expected non-blank pages:", pageCount);
 
       const printWindow = window.open(); // Open an empty window immediately
       if (printWindow) {
@@ -68,6 +74,9 @@ export const MergePDFButton = ({ type, pdfs }) => {
         printWindow.addEventListener("load", () => {
           printWindow.print();
         });
+        if (pageCount) {
+          setPrintedPages(pageCount);
+        }
       } else {
         setError(
           "Failed to open the print window. Please check your browser's pop-up settings."

@@ -5,6 +5,12 @@ export const Transactions = ({ data }) => {
   // State to track the selected transaction for detailed view
   const [selectedTransaction, setSelectedTransaction] = useState(null);
 
+  // Filters state
+  const [searchName, setSearchName] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [modeFilter, setModeFilter] = useState("");
+
   // Extract online payments from the `payments` array
   const onlinePayments = Array.isArray(data?.payments)
     ? data.payments.map((payment) => ({
@@ -31,8 +37,26 @@ export const Transactions = ({ data }) => {
     : [];
 
   // Combine online and offline payments
-  const allPayments = [...onlinePayments, ...offlinePayments]
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) 
+  const allPayments = [...onlinePayments, ...offlinePayments].sort(
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+  );
+
+  // Apply filters
+  const filteredPayments = allPayments.filter((payment) => {
+    const matchesName =
+      !searchName ||
+      payment.userPdf?.userName
+        ?.toLowerCase()
+        .includes(searchName.toLowerCase());
+    const matchesStartDate =
+      !startDate || new Date(payment.createdAt) >= new Date(startDate);
+    const matchesEndDate =
+      !endDate || new Date(payment.createdAt) <= new Date(endDate);
+    const matchesMode = !modeFilter || payment.mode === modeFilter;
+
+    return matchesName && matchesStartDate && matchesEndDate && matchesMode;
+  });
+
   // Function to handle opening the detailed view
   const handleOpenDetails = (payment) => {
     setSelectedTransaction(payment);
@@ -43,29 +67,54 @@ export const Transactions = ({ data }) => {
     setSelectedTransaction(null);
   };
 
-  // Handle cases where there are no payments
-  if (allPayments.length === 0) {
-    return (
-      <h1 className="flex text-nowrap items-center justify-center row-span-4 col-span-12">
-        No transactions found.
-      </h1>
-    );
-  }
-
   return (
     <div className="col-span-12 p-4 rounded border border-stone-300">
       {/* Header */}
       <div className="mb-4 flex items-center justify-between">
         <h3 className="flex items-center gap-1.5 font-medium">
-          ₹ Recent Transactions
+          ₹ Total Transactions
         </h3>
+
+        {/* Filters */}
+        <div className="space-x-2">
+          <input
+            type="text"
+            placeholder="Search by name"
+            value={searchName}
+            onChange={(e) => setSearchName(e.target.value)}
+            className="p-1 border border-stone-300 rounded outline-none"
+          />
+          <input
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className="p-1 border border-stone-300 rounded outline-none"
+          />
+          <input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            className="p-1 border border-stone-300 rounded outline-none"
+          />
+          <select
+            value={modeFilter}
+            onChange={(e) => setModeFilter(e.target.value)}
+            className="p-1 border border-stone-300 rounded outline-none"
+          >
+            <option value="">All Modes</option>
+            <option value="Online">Online</option>
+            <option value="Offline">Offline</option>
+          </select>
+        </div>
       </div>
 
       {/* Table */}
-      <table className="w-full table-auto">
+      {filteredPayments.length === 0 ? (<h1 className="flex text-nowrap items-center justify-center row-span-4 col-span-12">
+        No transactions found.
+      </h1>) : <table className="w-full table-auto">
         <TableHead />
         <tbody>
-          {allPayments.map((payment) => (
+          {filteredPayments.map((payment) => (
             <TableRow
               key={payment._id}
               hasData={true}
@@ -79,7 +128,7 @@ export const Transactions = ({ data }) => {
             />
           ))}
         </tbody>
-      </table>
+      </table>}
 
       {/* Detailed Transaction View */}
       {selectedTransaction && (
